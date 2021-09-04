@@ -1,9 +1,12 @@
-import json
 import logging
+import os
 from json import JSONDecodeError
+from typing import List
 
 import requests
 from urllib3.exceptions import InsecureRequestWarning
+
+from lesson import Lesson
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -51,23 +54,24 @@ class Eljur:
         # Запрос-заглушка, чтобы журнал подумал, что мы реальный пользователь и перешли по редиректу на /
         requests.get(self.url, cookies=self.cookies, verify=False)
 
-        # Не смог оформить в стиле ООП
-        class Diary:
-            r_diary = requests.post('https://schools48.ru/api/ScheduleService/GetDiary',
-                                    data={'date': f'{input()}',
-                                          'is_diary': 'true'},
-                                    cookies=self.cookies,
-                                    verify=False)
-            get_diary = json.loads(r_diary.text)
-            days = []
-            lessons = []
-            for days_kol in range(0, 5):
-                days.append(get_diary["days"][days_kol]['date'])
-                for lessons_kol in range(0, len(get_diary['days'][days_kol]["lessons"])):
-                    lessons.append(get_diary['days'][days_kol]['lessons'][lessons_kol])
-            print(days, '\n', lessons)
+    def get_lessons_for_week(self, day_in_week: str) -> List[Lesson]:
+        """ Метод получает все уроки за неделю, содержащую day_in_week
 
+        :param day_in_week: дата в виде в формате ГГГГ-мм-дд
+        """
+        # TODO: реализация получения уроков через обращение к API и запись
+        return []
 
 
 if __name__ == '__main__':
-    eljur = Eljur('02_sc047_u0008', 'NFh97fzW')
+    eljur = Eljur(os.environ.get('LOGIN', None), os.environ.get('PASSWORD', None))
+    """
+    Выводит уроки на заданной неделе в формате
+    <Lesson object at 0x101d6cfd0 name="Литература" index="1" office="Кабинет №№37-ОУ48" 
+    time="2020-03-02 08:00:00-2020-03-02 08:45:00" mark="" 
+    theme="Вн.чт. «Данко» (Отрывок из рассказа М.Горького «Старуха Изергиль» )"
+    teacher="Почапская Елена Валентиновна" homework="читать 8 главу">
+    ...
+    """
+    for lesson in eljur.get_lessons_for_week('05-03-2020'):
+        print(lesson)
