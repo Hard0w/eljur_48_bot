@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 from json import JSONDecodeError
@@ -18,7 +17,6 @@ def setup_logger(name):
     logger = logging.getLogger(name)
     logger.setLevel(level=logging.DEBUG)
     return logger
-
 
 
 class EljurError(Exception):
@@ -67,24 +65,24 @@ class Eljur:
                                 cookies=self.cookies,
                                 verify=False)
         get_diary = r_diary.json()
-        res = []
+        lessons = []
         for day_dict in get_diary['days']:
             for lesson_dict in day_dict.get('lessons', []):
-                res.append(Lesson(name=lesson_dict['discipline'],
-                                  index=lesson_dict['index'],
-                                  comment=lesson_dict['comment'],
-                                  attendance=lesson_dict['attendance'],
-                                  office=lesson_dict['office'],
-                                  date=lesson_dict['date'],
-                                  time_begin=lesson_dict['time_begin'],
-                                  time_end=lesson_dict['time_end'],
-                                  mark=lesson_dict['mark'],
-                                  theme=lesson_dict['theme'],
-                                  materials=lesson_dict['materials'],
-                                  teacher=lesson_dict['teacher'],
-                                  homework=lesson_dict['homework']))
+                lessons.append(Lesson(name=lesson_dict['discipline'],
+                                      index=lesson_dict['index'],
+                                      comment=lesson_dict['comment'],
+                                      attendance=lesson_dict['attendance'],
+                                      office=lesson_dict['office'],
+                                      date=lesson_dict['date'],
+                                      time_begin=lesson_dict['time_begin'],
+                                      time_end=lesson_dict['time_end'],
+                                      mark=lesson_dict['mark'],
+                                      theme=lesson_dict['theme'],
+                                      materials=lesson_dict['materials'],
+                                      teacher=lesson_dict['teacher'],
+                                      homework=lesson_dict['homework']))
         # TODO: реализация получения уроков через обращение к API и запись
-        return res
+        return lessons
 
 
 if __name__ == '__main__':
