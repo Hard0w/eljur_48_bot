@@ -53,6 +53,37 @@ class Eljur:
         # Запрос-заглушка, чтобы журнал подумал, что мы реальный пользователь и перешли по редиректу на /
         requests.get(self.url, cookies=self.cookies, verify=False)
 
+    def get_lessons_for_day(self, date: str):
+        """ Метод получает все уроки за указанный день
+
+        :param date: дата в виде в фомате ГГГГ-мм-дд
+        """
+        r_diary = requests.post(f'{self.url}/api/ScheduleService/GetDiary',
+                                data={'date': date,
+                                      'is_diary': 'true'},
+                                cookies=self.cookies,
+                                verify=False)
+        get_diary = r_diary.json()
+        lessons = []
+        for day_dict in get_diary['days']:
+            for lesson_dict in day_dict.get('lessons', []):
+                if lesson_dict['date'] == date:
+                    lessons.append(Lesson(name=lesson_dict['discipline'],
+                                          index=lesson_dict['index'],
+                                          comment=lesson_dict['comment'],
+                                          attendance=lesson_dict['attendance'],
+                                          office=lesson_dict['office'],
+                                          date=lesson_dict['date'],
+                                          time_begin=lesson_dict['time_begin'],
+                                          time_end=lesson_dict['time_end'],
+                                          mark=lesson_dict['mark'],
+                                          theme=lesson_dict['theme'],
+                                          materials=lesson_dict['materials'],
+                                          teacher=lesson_dict['teacher'],
+                                          homework=lesson_dict['homework']))
+        print(lessons)
+        return lessons
+
     def get_lessons_for_week(self, day_in_week: str) -> List[Lesson]:
         """ Метод получает все уроки за неделю, содержащую day_in_week
 
@@ -95,5 +126,6 @@ if __name__ == '__main__':
     teacher="Почапская Елена Валентиновна" homework="читать 8 главу">
     ...
     """
-    for lesson in eljur.get_lessons_for_week('2020-05-03'):
-        print(lesson)
+    eljur.get_lessons_for_day('2020-01-21')
+    # for lesson in eljur.get_lessons_for_week('2020-05-03'):
+    #     print(lesson)
